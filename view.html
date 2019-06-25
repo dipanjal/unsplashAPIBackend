@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Unsplash API Test</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <form class="form col-md-12">
+            <div class="form-group">
+                <input class="form-control" type="text" placeholder="image keyword" id="_query"/>
+            </div>
+            <div>
+                <input type="button" class="form-control btn btn-success" id="btn2" value="Unsplash API Test"/>
+            </div>
+            <div>
+                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400&fit=max&ixid=eyJhcHBfaWQiOjEyMDd9" alt="" id="imageHolder">
+            </div>
+        </form>
+    </div>
+    <script>
+        const BASEURL = window.location.origin;
+        let photos = [];
+        $(function(){
+            let page = 1;
+            $("#btn2").on('click', (e)=> {
+                let query = $("#_query").val()==""?"face":$("#_query").val();
+                let requestURL = BASEURL+"/api/unsplash/photos";
+                if(photos.length == 0){
+                    console.log("-------HIT API NOW--------");
+                        $.ajax({
+                        url: requestURL,
+                        type: 'POST',
+                        data: {
+                            query: query,
+                            page: page
+                        }
+                    }).done(data=>{
+                            console.log(data);
+                            photos = data.results;
+                            if(photos.length>0){
+                                console.log("-------CURRENT IMAGE--------");
+                                let photo = photos.pop();
+                                console.log(photo);
+                                setImage(photo.urls.thumb);
+                            }
+
+                            if(data.total_pages>=page)
+                                page++;
+                    }).fail(err=> {
+                            console.log(err);
+                    });
+                }else{
+                    console.log("-------CURRENT IMAGE--------");
+                    let photo = photos.pop();
+                    console.log(photo);
+                    setImage(photo.urls.thumb);
+                }
+            });
+        });
+        
+        function setImage(imageUrl){
+            $("#imageHolder").attr('src',imageUrl);
+        }
+    </script>
+</body>
+</html>
